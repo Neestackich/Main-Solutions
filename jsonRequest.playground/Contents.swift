@@ -30,7 +30,7 @@ class Downloader {
                     
                     do {
                         //возвращает экземляр Entry
-                        self.parsedJSON = try self.jsonDecoder.decode(Entry.self, from: data)
+                        self.parsedJSON = try self.jsonDecoder.decode(Entry.self, from: data);
                         
                         optionalExtract(optional: self.parsedJSON.userId);
                         optionalExtract(optional: self.parsedJSON.id);
@@ -40,7 +40,7 @@ class Downloader {
                         print(error);
                     }
                 }
-            }.resume()
+            }.resume();
         }
     }
 }
