@@ -2,13 +2,6 @@ import UIKit
 
 //https://jsonplaceholder.typicode.com/todos/1
 
-class Entry: Decodable {
-    var userId: Int?;
-    var id: Int?;
-    var title: String?;
-    var completed: Bool?;
-}
-
 //дженерик функция для извлечения опционала
 func optionalExtract<T>(optional: T?) {
     if let extractedValue = optional {
@@ -18,11 +11,23 @@ func optionalExtract<T>(optional: T?) {
     }
 }
 
+enum RequestError: Error {
+    case invalidUrl(url: String);
+    case invalidData(url: String);
+}
+
+class Entry: Decodable {
+    var userId: Int?;
+    var id: Int?;
+    var title: String?;
+    var completed: Bool?;
+}
+
 class Downloader {
     var jsonDecoder: JSONDecoder!;
     var parsedJSON: Entry!;
     
-    func downloadAndParse() -> Void {
+    func downloadAndParse() throws -> Void {
         if let url = URL(string: "https://jsonplaceholder.typicode.com/todos/1") {
             URLSession.shared.dataTask(with: url) { receivedData, response, error in
                 if let data = receivedData {
@@ -41,9 +46,19 @@ class Downloader {
                     }
                 }
             }.resume();
+        } else {
+            throw RequestError.invalidUrl(url: "https://jsonplaceholder.typicode.com/todos/1")
         }
     }
 }
 
 var downloader: Downloader = Downloader();
-downloader.downloadAndParse();
+
+do {
+    try downloader.downloadAndParse();
+} catch RequestError.invalidUrl(let url) {
+    print("Using of invalid url: \(url)");
+} catch RequestError.invalidData(let url) {
+    print("Downloading of invalid data via url: \(url)");
+}
+
