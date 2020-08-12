@@ -2,6 +2,13 @@ import UIKit
 
 //https://jsonplaceholder.typicode.com/todos/1
 
+class Entry: Decodable {
+    var userId: Int?;
+    var id: Int?;
+    var title: String?;
+    var completed: Bool?;
+}
+
 //дженерик функция для извлечения опционала
 func optionalExtract<T>(optional: T?) {
     if let extractedValue = optional {
@@ -11,23 +18,11 @@ func optionalExtract<T>(optional: T?) {
     }
 }
 
-enum RequestError: Error {
-    case invalidUrl(url: String);
-    case invalidData(url: String);
-}
-
-class Entry: Decodable {
-    var userId: Int?;
-    var id: Int?;
-    var title: String?;
-    var completed: Bool?;
-}
-
 class Downloader {
     var jsonDecoder: JSONDecoder!;
-    var parsedJSON: Entry!;
+    var parsedJSON: Entry = Entry();
     
-    func downloadAndParse() throws -> Void {
+    func downloadAndParse() -> Entry {
         if let url = URL(string: "https://jsonplaceholder.typicode.com/todos/1") {
             URLSession.shared.dataTask(with: url) { receivedData, response, error in
                 if let data = receivedData {
@@ -36,29 +31,24 @@ class Downloader {
                     do {
                         //возвращает экземляр Entry
                         self.parsedJSON = try self.jsonDecoder.decode(Entry.self, from: data);
-                        
-                        optionalExtract(optional: self.parsedJSON.userId);
-                        optionalExtract(optional: self.parsedJSON.id);
-                        optionalExtract(optional: self.parsedJSON.title);
-                        optionalExtract(optional: self.parsedJSON.completed);
+
+                        //optionalExtract(optional: self.parsedJSON.userId);
+                        //optionalExtract(optional: self.parsedJSON.id);
+                        //optionalExtract(optional: self.parsedJSON.title);
+                        //optionalExtract(optional: self.parsedJSON.completed);
                     } catch {
                         print(error);
                     }
                 }
             }.resume();
-        } else {
-            throw RequestError.invalidUrl(url: "https://jsonplaceholder.typicode.com/todos/1")
         }
+        
+        return parsedJSON;
     }
 }
 
 var downloader: Downloader = Downloader();
+//downloader.downloadAndParse();
 
-do {
-    try downloader.downloadAndParse();
-} catch RequestError.invalidUrl(let url) {
-    print("Using of invalid url: \(url)");
-} catch RequestError.invalidData(let url) {
-    print("Downloading of invalid data via url: \(url)");
-}
+var parsedJSON: Entry = downloader.downloadAndParse();
 
