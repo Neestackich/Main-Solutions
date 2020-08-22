@@ -8,13 +8,24 @@
 
 import UIKit
 
-class ViewController: UIViewController {
-
+class FirstViewController: UIViewController, FirstViewControllerDelegate {
+    
+    @IBOutlet weak var label: UILabel!
+//    @IBOutlet weak var button: UIButton!
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
     }
-
-
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard let destination = segue.destination as? SecondViewController else { return }
+        destination.delegate = self
+    }
+    
+    func update(text: String) {
+        label.text = text
+    }
 }
 
